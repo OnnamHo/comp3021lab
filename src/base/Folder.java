@@ -1,8 +1,10 @@
 package base;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class Folder {
+public class Folder implements Comparable<Folder>{
 
 		private ArrayList<Note> notes;
 		private String name;
@@ -65,5 +67,81 @@ public class Folder {
 			} else if (!name.equals(other.name))
 				return false;
 			return true;
+		}
+
+		@Override
+		public int compareTo(Folder o) {
+			// TODO Auto-generated method stub
+			if(o.name.compareTo(this.name) < 0)
+			{
+				return 1;
+			}
+			else if(o.name.compareTo(this.name) > 0)
+			{
+				return -1;
+			}
+			
+			return 0;
+		}
+		
+		public void sortNotes()
+		{
+			Collections.sort(notes);
+		}
+		
+		public List<Note> searchNotes(String keywords)
+		{
+			String lowerKey = keywords.toLowerCase();
+			String[] parts = lowerKey.split(" ");
+			String[] orPart = new String[4];
+			List<Note> result = new ArrayList<Note>();
+
+			int[] index = new int[5];
+			int count=-1;
+			int j=-1;
+
+			for(int i=0; i<parts.length; i++)
+			{
+				
+				if(parts[i].contains("or"))
+				{
+					count++;
+					index[count] = i;
+					
+				}
+				
+			}
+
+			
+			for(int i: index)
+			{
+				if(i!=0)
+				{
+					j++;
+					orPart[j] = parts[i-1];
+					j++;
+					orPart[j] = parts[i+1];
+					
+				}
+				
+			}
+
+			for(Note n: notes)
+			{
+				if((n.getTitle().toLowerCase().contains(orPart[0])) || n.getTitle().toLowerCase().contains(orPart[1]) && (n.getTitle().toLowerCase().contains(orPart[2]) || n.getTitle().toLowerCase().contains(orPart[3])))
+				{
+					result.add(n);
+					
+				}
+				else if(n instanceof TextNote)
+				{
+					if( (((TextNote) n).content.toLowerCase().contains(orPart[0])||  ((TextNote) n).content.toLowerCase().contains(orPart[1])) && (((TextNote) n).content.toLowerCase().contains(orPart[2]) || ((TextNote) n).content.toLowerCase().contains(orPart[3])))
+					{
+						result.add(n);	
+					}
+				}
+
+			}
+			return result;
 		}
 }
